@@ -7,6 +7,9 @@ require('dotenv').config()
 app.use(cors());
 app.use(express.json());
 
+// app.get('/user', (req, res) => {
+//     res.send('Hello user faysal')
+// })
 app.get('/user', (req, res) => {
     res.send('Hello user faysal')
 })
