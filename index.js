@@ -4,7 +4,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 require('dotenv').config()
-// mid
+// middleware
 app.use(cors());
 app.use(express.json());
 
@@ -18,6 +18,7 @@ async function run() {
     try {
         await client.connect();
         const partCollection = client.db('manufacturer_factory').collection('parts');
+        const reviewCollection = client.db('manufacturer_factory').collection('reviews');
 
         app.get('/part', async (req, res) => {
             const query = {};
@@ -25,11 +26,17 @@ async function run() {
             const parts = await cursor.toArray();
             res.send(parts);
         });
-        app.get('/purchase/:id', async (req, res) => {
+        app.get('/part/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            const purchase = await partCollection.findOne(query);
-            res.send(purchase);
+            const part = await partCollection.findOne(query);
+            res.send(part);
+        });
+        app.post('/review', async (req, res) => {
+            const reviews = req.body;
+            const query = { rating: reviews.rating, description: reviews.description }
+            const review = await reviewCollection.insertOne(query);
+            res.send(review);
         })
 
     }
