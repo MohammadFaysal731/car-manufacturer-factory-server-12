@@ -18,6 +18,7 @@ async function run() {
     try {
         await client.connect();
         const partCollection = client.db('manufacturer_factory').collection('parts');
+        // const userCollection = client.db('manufacturer_factory').collection('users');
         const orderCollection = client.db('manufacturer_factory').collection('orders');
         const reviewCollection = client.db('manufacturer_factory').collection('reviews');
 
@@ -34,9 +35,33 @@ async function run() {
             res.send(part);
         });
 
+        // app.put('/user/:email', async (req, res) => {
+        //     const email = req.params.email;
+        //     const user = req.body;
+        //     const filter = { email: email };
+        //     const options = { upser: true };
+        //     const updateDoc = {
+        //         $set: {
+        //             user
+        //         }
+        //     }
+        //     const result = await userCollection.updateOne(filter, updateDoc, options);
+        //     res.send(result);
+        // });
+
+
+
+        app.get('/order', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const order = await orderCollection.find(query).toArray();
+            res.send(order);
+        })
+
+
         app.post('/order', async (req, res) => {
             const orders = req.body;
-            const query = { address: orders.address, phone: orders.phone, productName: orders.productName, order: orders.order, }
+            const query = { name: orders.name, email: orders.email, address: orders.address, phone: orders.phone, productName: orders.productName, productQuantity: orders.productQuantity, }
             const order = await orderCollection.insertOne(query);
             res.send(order);
         })
