@@ -18,6 +18,7 @@ async function run() {
     try {
         await client.connect();
         const partCollection = client.db('manufacturer_factory').collection('parts');
+        const orderCollection = client.db('manufacturer_factory').collection('orders');
         const reviewCollection = client.db('manufacturer_factory').collection('reviews');
 
         app.get('/part', async (req, res) => {
@@ -32,12 +33,34 @@ async function run() {
             const part = await partCollection.findOne(query);
             res.send(part);
         });
+
+        app.post('/order', async (req, res) => {
+            const orders = req.body;
+            const query = { address: orders.address, phone: orders.phone, productName: orders.productName, order: orders.order, }
+            const order = await orderCollection.insertOne(query);
+            res.send(order);
+        })
+
+
+        app.get('/review', async (req, res) => {
+            const query = {};
+            const cursor = reviewCollection.find(query);
+            const review = await cursor.toArray();
+            res.send(review);
+        });
+
         app.post('/review', async (req, res) => {
             const reviews = req.body;
-            const query = { rating: reviews.rating, description: reviews.description }
-            const review = await reviewCollection.insertOne(query);
-            res.send(review);
-        })
+            const query = { name: reviews.name, email: reviews.email, rating: reviews.rating, description: reviews.description, }
+            const exists = await reviewCollection.findOne(query);
+            if (exists) {
+                return res.send({ success: false, reviews: exists });
+            }
+            else {
+                const review = await reviewCollection.insertOne(query);
+                return res.send({ success: true, reviews: review });
+            }
+        });
 
     }
     finally {
