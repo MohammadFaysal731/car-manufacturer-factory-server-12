@@ -64,6 +64,13 @@ async function run() {
             const query = { name: orders.name, email: orders.email, address: orders.address, phone: orders.phone, productName: orders.productName, productQuantity: orders.productQuantity, }
             const order = await orderCollection.insertOne(query);
             res.send(order);
+        });
+
+        app.delete('/order/:id', async (req, res) => {
+            const id = req.params;
+            const query = { _id: ObjectId(id) }
+            const result = await orderCollection.deleteOne(query);
+            res.send(result);
         })
 
 
