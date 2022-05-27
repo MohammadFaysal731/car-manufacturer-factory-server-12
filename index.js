@@ -35,6 +35,12 @@ async function run() {
             const part = await partCollection.findOne(query);
             res.send(part);
         });
+        // this api for all user 
+        app.get('/user', async (req, res) => {
+            const users = await userCollection.find().toArray();
+            res.send(users);
+        })
+
         // this api for crete all user and saved the database  
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
