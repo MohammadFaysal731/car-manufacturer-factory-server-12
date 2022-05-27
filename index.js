@@ -18,7 +18,7 @@ async function run() {
     try {
         await client.connect();
         const partCollection = client.db('manufacturer_factory').collection('parts');
-        // const userCollection = client.db('manufacturer_factory').collection('users');
+        const userCollection = client.db('manufacturer_factory').collection('users');
         const orderCollection = client.db('manufacturer_factory').collection('orders');
         const reviewCollection = client.db('manufacturer_factory').collection('reviews');
 
@@ -35,19 +35,17 @@ async function run() {
             res.send(part);
         });
 
-        // app.put('/user/:email', async (req, res) => {
-        //     const email = req.params.email;
-        //     const user = req.body;
-        //     const filter = { email: email };
-        //     const options = { upser: true };
-        //     const updateDoc = {
-        //         $set: {
-        //             user
-        //         }
-        //     }
-        //     const result = await userCollection.updateOne(filter, updateDoc, options);
-        //     res.send(result);
-        // });
+        app.put('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user
+            }
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        });
 
 
 
