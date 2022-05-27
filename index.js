@@ -40,6 +40,16 @@ async function run() {
             const users = await userCollection.find().toArray();
             res.send(users);
         })
+        // this api for make admin
+        app.put('/user/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const updateDoc = {
+                $set: { role: 'admin' }
+            };
+            const makeAdmin = await userCollection.updateOne(filter, updateDoc);
+            res.send(makeAdmin);
+        })
 
         // this api for crete all user and saved the database  
         app.put('/user/:email', async (req, res) => {
