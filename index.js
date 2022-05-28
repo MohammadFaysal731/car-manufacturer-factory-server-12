@@ -23,8 +23,8 @@ async function run() {
         const orderCollection = client.db('manufacturer_factory').collection('orders');
         const reviewCollection = client.db('manufacturer_factory').collection('reviews');
         const profileCollection = client.db('manufacturer_factory').collection('profiles');
-        // this 
-        app.post('//create-payment-intent', async (req, res) => {
+        // this create payment intent 
+        app.post('/create-payment-intent', async (req, res) => {
             const order = req.body;
             const price = order.price;
             const amount = price * 100;
@@ -44,6 +44,12 @@ async function run() {
             const parts = await cursor.toArray();
             res.send(parts);
         });
+        app.post('/part', async (req, res) => {
+            const product = req.body;
+            const query = { name: product.name, description: product.description, price: product.price, minimumQuantity: product.minimumQuantity, availableQuantity: product.availableQuantity, image: product.image }
+            const result = await partCollection.insertOne(query);
+            res.send(result);
+        })
         // this api for specific part
         app.get('/part/:id', async (req, res) => {
             const id = req.params.id;
