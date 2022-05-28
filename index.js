@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
@@ -21,6 +22,21 @@ async function run() {
         const userCollection = client.db('manufacturer_factory').collection('users');
         const orderCollection = client.db('manufacturer_factory').collection('orders');
         const reviewCollection = client.db('manufacturer_factory').collection('reviews');
+        const profileCollection = client.db('manufacturer_factory').collection('profiles');
+        // this 
+        app.post('//create-payment-intent', async (req, res) => {
+            const order = req.body;
+            const price = order.price;
+            const amount = price * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: 'usd',
+                automatic_payment_methods: ['card']
+            });
+            res.send({ clientSecret: paymentIntent.client_secret })
+
+        })
+
         // this api for all parts
         app.get('/part', async (req, res) => {
             const query = {};
@@ -39,7 +55,7 @@ async function run() {
         app.get('/user', async (req, res) => {
             const users = await userCollection.find().toArray();
             res.send(users);
-        })
+        });
         // this api for make admin
         app.put('/user/admin/:email', async (req, res) => {
             const email = req.params.email;
@@ -49,8 +65,7 @@ async function run() {
             };
             const makeAdmin = await userCollection.updateOne(filter, updateDoc);
             res.send(makeAdmin);
-        })
-
+        });
         // this api for crete all user and saved the database  
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
@@ -83,11 +98,18 @@ async function run() {
             const order = await orderCollection.find(query).toArray();
             res.send(order);
         });
+        // this api for specific order 
+        app.get('/order/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const order = await orderCollection.findOne(query);
+            res.send(order);
+        })
 
         // this api for create order
         app.post('/order', async (req, res) => {
             const orders = req.body;
-            const query = { name: orders.name, email: orders.email, address: orders.address, phone: orders.phone, productName: orders.productName, productQuantity: orders.productQuantity, }
+            const query = { name: orders.name, email: orders.email, address: orders.address, phone: orders.phone, productName: orders.productName, price: orders.price, productQuantity: orders.productQuantity, }
             const order = await orderCollection.insertOne(query);
             res.send(order);
         });
@@ -118,6 +140,14 @@ async function run() {
                 return res.send({ success: true, reviews: review });
             }
         });
+        // this api for profile info 
+        app.post('/profile', async (req, res) => {
+            const profiles = req.body;
+            const query = { name: profiles.name, email: profiles.email, education: profiles.education, location: profiles.location, phone: profiles.phone, linkedIn: profiles.linkedIn }
+            const profile = await profileCollection.insertOne(query);
+            res.send(profile);
+        });
+
 
     }
     finally {
